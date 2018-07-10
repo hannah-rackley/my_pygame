@@ -40,8 +40,7 @@ class Player(pygame.sprite.Sprite):
         super(Player, self).__init__()
 
         #Set height and width
-        self.image = pygame.Surface([15, 15])
-        self.image.fill(BLACK)
+        self.image = pygame.image.load('penguin1.png').convert_alpha()
 
         #Make top left corner the passed-in location
         self.rect = self.image.get_rect()
