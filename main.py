@@ -25,9 +25,48 @@ class Board(object):
             self.grid.append([])
             for column in range(5):
                 self.grid[row].append(0)
-        self.grid[1][2] = 1
-        self.grid[3][1] = 2
         return self.grid
+
+    # def create_hole(self):
+    #     self.grid[x][y] = 1
+    #     return self.grid
+    
+    # def create_rock(self):
+    #     self.grid[x][y] = 2
+    #     return self.grid
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super(Player, self).__init__()
+
+        #Set height and width
+        self.image = pygame.Surface([15, 15])
+        self.image.fill(BLACK)
+
+        #Make top left corner the passed-in location
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+        #Set speed
+        self.change_x = 0
+        self.change_y = 0
+
+    def change_speed(self, x, y):
+        self.change_x += x
+        self.change_y += y
+    
+    def update(self):
+        self.rect.x += self.change_x
+        self.rect.y += self.change_y
+#Setup board      
+board = Board()
+grid = board.create_grid_array()
+
+#Create player
+player = Player(5, 5)
+all_sprites_list = pygame.sprite.Group()
+all_sprites_list.add(player)
 
 #Setup tempo (60 frames per second)
 clock = pygame.time.Clock()
@@ -35,18 +74,39 @@ clock = pygame.time.Clock()
 #Create the game loop.
 done = False
 while not done:
-    board = Board()
-    grid = board.create_grid_array()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            pos = pygame.mouse.get_pos()
-            column = pos[0] // (width + margin)
-            row = pos[1] // (height + margin)
-            grid[row][column] = 1
+        #Set speed based on key pressed.
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                player.change_speed(-3, 0)
+            elif event.key == pygame.K_RIGHT:
+                player.change_speed(3, 0)
+            elif event.key == pygame.K_UP:
+                player.change_speed(0, -3)
+            elif event.key == pygame.K_DOWN:
+                player.change_speed(0, 3)
+        #Reset speed when key is released
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT:
+                player.change_speed(3, 0)
+            elif event.key == pygame.K_RIGHT:
+                player.change_speed(-3, 0)
+            elif event.key == pygame.K_UP:
+                player.change_speed(0, 3)
+            elif event.key == pygame.K_DOWN:
+                player.change_speed(0, -3)
 
-    #draw to the screen
+        
+        # elif event.type == pygame.MOUSEBUTTONDOWN:
+        #     pos = pygame.mouse.get_pos()
+        #     column = pos[0] // (width + margin)
+        #     row = pos[1] // (height + margin)
+        #     grid[row][column] = 1
+
+    all_sprites_list.update()
+    #draw grid to the screen
     screen.fill(BLACK)
     for row in range(5):
         for column in range(5):
@@ -56,7 +116,13 @@ while not done:
             elif grid[row][column] == 2:
                 color = BLACK
             pygame.draw.rect(screen, color, [(margin + width) * column + margin, (margin + height) * row + margin, width, height])
+
+    #draw sprites to the screen
+    all_sprites_list.draw(screen)
+
+    #update screen
     pygame.display.update()
+    
     #setting clock
     clock.tick(60)
 
