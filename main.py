@@ -27,13 +27,14 @@ class Board(object):
                 self.grid[row].append(0)
         return self.grid
 
-    # def create_hole(self):
-    #     self.grid[x][y] = 1
-    #     return self.grid
-    
-    # def create_rock(self):
-    #     self.grid[x][y] = 2
-    #     return self.grid
+    def draw_board(self):
+        grid = self.create_grid_array()
+        screen.fill(BLACK)
+        for row in range(5):
+            for column in range(5):
+                color = BLUE
+                pygame.draw.rect(screen, color, [(margin + width) * column + margin, (margin + height) * row + margin, width, height])
+        return grid
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -51,6 +52,17 @@ class Player(pygame.sprite.Sprite):
         self.move_horizontal = 0
         self.move_vertical = 0
 
+    def change_move_speed(self, pressed):
+        if self.move_horizontal == 0 and self.move_vertical == 0:
+            if pressed[pygame.K_RIGHT]:
+                self.move_horizontal = 3
+            elif pressed[pygame.K_LEFT]:
+                self.move_horizontal = -3
+            elif pressed[pygame.K_UP]:
+                self.move_vertical = -3
+            elif pressed[pygame.K_DOWN]:
+                self.move_vertical = 3
+
     def update(self):
         if self.rect.right + self.move_horizontal >= 600:
             self.move_horizontal = 0
@@ -64,25 +76,33 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += self.move_horizontal
         self.rect.y += self.move_vertical
 
-    def change_move_speed(self, pressed):
-        if self.move_horizontal == 0 and self.move_vertical == 0:
-            if pressed[pygame.K_RIGHT]:
-                self.move_horizontal = 3
-            elif pressed[pygame.K_LEFT]:
-                self.move_horizontal = -3
-            elif pressed[pygame.K_UP]:
-                self.move_vertical = -3
-            elif pressed[pygame.K_DOWN]:
-                self.move_vertical = 3
+class Hole(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super(Hole, self).__init__()
+    
+        self.image = pygame.Surface([114, 114])
+        self.image.fill(BLACK)
+        self.rect = self.image.get_rect()
+
+        self.rect.x = x
+        self.rect.y = y
+
+    def check_hole_collision(self):
+       pygame.sprite.spritecollide(self, all_sprites_list, True)
+            
     
 #Setup board      
 board = Board()
-grid = board.create_grid_array()
 
-#Create player
+#Create Player
 player = Player(2, 2)
 all_sprites_list = pygame.sprite.Group()
 all_sprites_list.add(player)
+
+#Create hole
+hole = Hole(124, 481)
+hole_list = pygame.sprite.Group()
+hole_list.add(hole)
 
 #Setup tempo (60 frames per second)
 clock = pygame.time.Clock()
@@ -95,22 +115,16 @@ while not done:
             done = True
         pressed = pygame.key.get_pressed()
         player.change_move_speed(pressed)
+        hole.check_hole_collision()
         
         player.update()
 
     #draw grid to the screen
-    screen.fill(BLACK)
-    for row in range(5):
-        for column in range(5):
-            color = BLUE
-            if grid[row][column] == 1:
-                color = WHITE
-            elif grid[row][column] == 2:
-                color = BLACK
-            pygame.draw.rect(screen, color, [(margin + width) * column + margin, (margin + height) * row + margin, width, height])
+    board.draw_board()
 
     #draw sprites to the screen
     all_sprites_list.draw(screen)
+    hole_list.draw(screen)
 
     #Get pressed keys
     player.update()
