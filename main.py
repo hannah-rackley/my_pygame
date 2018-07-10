@@ -39,7 +39,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Player, self).__init__()
 
-        #Set height and width
+        #Set image
         self.image = pygame.image.load('penguin1.png').convert_alpha()
 
         #Make top left corner the passed-in location
@@ -48,22 +48,39 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = y
 
         #Set speed
-        self.change_x = 0
-        self.change_y = 0
+        self.move_horizontal = 0
+        self.move_vertical = 0
 
-    def change_speed(self, x, y):
-        self.change_x += x
-        self.change_y += y
-    
     def update(self):
-        self.rect.x += self.change_x
-        self.rect.y += self.change_y
+        if self.rect.right + self.move_horizontal >= 600:
+            self.move_horizontal = 0
+        elif self.rect.left + self.move_horizontal <= 0:
+            self.move_horizontal = 0
+        if self.rect.bottom + self.move_vertical >= 600:
+            self.move_vertical = 0
+        elif self.rect.top + self.move_vertical <= 0:
+            self.move_vertical = 0
+        
+        self.rect.x += self.move_horizontal
+        self.rect.y += self.move_vertical
+
+    def change_move_speed(self, pressed):
+        if self.move_horizontal == 0 and self.move_vertical == 0:
+            if pressed[pygame.K_RIGHT]:
+                self.move_horizontal = 3
+            elif pressed[pygame.K_LEFT]:
+                self.move_horizontal = -3
+            elif pressed[pygame.K_UP]:
+                self.move_vertical = -3
+            elif pressed[pygame.K_DOWN]:
+                self.move_vertical = 3
+    
 #Setup board      
 board = Board()
 grid = board.create_grid_array()
 
 #Create player
-player = Player(5, 5)
+player = Player(2, 2)
 all_sprites_list = pygame.sprite.Group()
 all_sprites_list.add(player)
 
@@ -76,35 +93,11 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-        #Set speed based on key pressed.
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                player.change_speed(-3, 0)
-            elif event.key == pygame.K_RIGHT:
-                player.change_speed(3, 0)
-            elif event.key == pygame.K_UP:
-                player.change_speed(0, -3)
-            elif event.key == pygame.K_DOWN:
-                player.change_speed(0, 3)
-        #Reset speed when key is released
-        elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT:
-                player.change_speed(3, 0)
-            elif event.key == pygame.K_RIGHT:
-                player.change_speed(-3, 0)
-            elif event.key == pygame.K_UP:
-                player.change_speed(0, 3)
-            elif event.key == pygame.K_DOWN:
-                player.change_speed(0, -3)
-
+        pressed = pygame.key.get_pressed()
+        player.change_move_speed(pressed)
         
-        # elif event.type == pygame.MOUSEBUTTONDOWN:
-        #     pos = pygame.mouse.get_pos()
-        #     column = pos[0] // (width + margin)
-        #     row = pos[1] // (height + margin)
-        #     grid[row][column] = 1
+        player.update()
 
-    all_sprites_list.update()
     #draw grid to the screen
     screen.fill(BLACK)
     for row in range(5):
@@ -118,6 +111,9 @@ while not done:
 
     #draw sprites to the screen
     all_sprites_list.draw(screen)
+
+    #Get pressed keys
+    player.update()
 
     #update screen
     pygame.display.update()
