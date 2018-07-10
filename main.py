@@ -115,20 +115,17 @@ while not done:
             done = True
         pressed = pygame.key.get_pressed()
         player.change_move_speed(pressed)
-        hole.check_hole_collision()
-        
-        player.update()
+    
+    player.update()
+    hole_list.update()
 
+    hole.check_hole_collision()
     #draw grid to the screen
     board.draw_board()
 
     #draw sprites to the screen
     all_sprites_list.draw(screen)
     hole_list.draw(screen)
-
-    #Get pressed keys
-    player.update()
-
     #update screen
     pygame.display.update()
     
