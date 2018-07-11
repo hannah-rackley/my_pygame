@@ -1,4 +1,5 @@
 import pygame
+import time
 pygame.init()
 
 #Game colors
@@ -21,7 +22,6 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Save the penguins!")
 
 class Board(object):
-
     def __init__(self):
         self.grid = []
     
@@ -92,7 +92,7 @@ class Hole(pygame.sprite.Sprite):
         self.rect.x = (box_length + margin) * x + margin
         self.rect.y = (box_length + margin) * y + margin
 
-    def check_hole_collision(self):
+    def check_hole_collision(self, player_list, player):
         hole_hit_list = pygame.sprite.spritecollide(self, player_list, True)
         if len(hole_hit_list) > 0:
             pygame.mixer.music.load('acid_burn.mp3')
@@ -110,7 +110,7 @@ class Rock(pygame.sprite.Sprite):
         self.rect.x = (box_length + margin) * x + margin
         self.rect.y = (box_length + margin) * y + margin
 
-    def check_rock_collision(self):
+    def check_rock_collision(self, player_list, player):
         rock_hit_list = pygame.sprite.spritecollide(self, player_list, False)
         if len(rock_hit_list) > 0:
             pygame.mixer.music.load('Fire_4.mp3')
@@ -134,23 +134,29 @@ class Winner(pygame.sprite.Sprite):
         self.rect.x = (box_length + margin) * x + margin
         self.rect.y = (box_length + margin) * y + margin
 
-    def check_winner_collision(self):
+    def check_winner_collision(self, player_list, player):
         winner_hit_list = pygame.sprite.spritecollide(self, player_list, True)
         if len(winner_hit_list) > 0:
-            return True     
+            return True   
+
+
     
 #Setup board      
 board = Board()
 
 #Create Player
-player = Player(2, 2)
-player_list = pygame.sprite.Group()
-player_list.add(player)
+def create_player():
+    player = Player(2, 2)
+    player_list = pygame.sprite.Group()
+    player_list.add(player)
+    return player_list
 
 #Create winning square
-winner = Winner(5, 7)
-winner_list = pygame.sprite.Group()
-winner_list.add(winner)
+def create_winner():
+    winner = Winner(5, 7)
+    winner_list = pygame.sprite.Group()
+    winner_list.add(winner)
+    return winner_list
 
 def hole_creator(hole_dict):
     hole_list = pygame.sprite.Group()
@@ -166,18 +172,27 @@ def rock_creator(rock_dict):
         rock_list.add(rock)
     return rock_list
 
-def hard_level_hole():
-    #Create holes
-    hole_dict = {
-        'hole1': [4, 7],
-        'hole2': [6, 7]
-    }
-    hole_list = hole_creator(hole_dict)
-    return hole_list
+def make_text(text, font):
+    textSurface = font.render(text, True, BLUE)
+    return textSurface, textSurface.get_rect()
 
-def hard_level_rock():
-    #Create rocks
-    rock_dict = {
+def display_medium_text(text):
+    mediumText = pygame.font.Font('freesansbold.ttf', 30)
+    TextSurf, TextRect = make_text(text, mediumText)
+    TextRect.center = ((width/2), (height/2))
+    screen.blit(TextSurf, TextRect)
+
+    pygame.display.update()
+
+win_message = "You won! Press any key to play again!"
+start_message = 'Save the penguin!'
+
+hard_hole_dict = {
+    'hole1': [4, 7],
+    'hole2': [6, 7]
+}
+
+hard_rock_dict = {
     'rock1': [2, 0],
     'rock2': [1, 2],
     'rock3': [2, 2],
@@ -186,17 +201,14 @@ def hard_level_rock():
     'rock6': [3, 5],
     'rock7': [2, 6],
     'rock8': [7, 7]
-    }
-    rock_list = rock_creator(rock_dict)
-
-    return rock_list
+}
 
 #Setup tempo (60 frames per second)
 clock = pygame.time.Clock()
 
-def title_screen():
+def title_screen(message):
     screen = pygame.display.set_mode(size)
-    pygame.display.set_caption("Save the penguins!")
+    pygame.display.set_caption("Save the penguin!")
     background_image = pygame.image.load('frozen-lake.png').convert()
 
     start_game = False
@@ -204,62 +216,74 @@ def title_screen():
     while not start_game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                exit()
+            elif event.type == pygame.KEYDOWN:
                 start_game = True
-                done = True
-        
+
         screen.blit(background_image, [0, 0])
-        
+        display_medium_text(message)
+
         pygame.display.update()
         clock.tick(60)
-    pygame.quit()
+
+    game_loop()
 
 #Create the game loop.
+def game_loop():
+    hole_list = hole_creator(hard_hole_dict)
+    rock_list = rock_creator(hard_rock_dict)
+    winner_list = create_winner()
+    for player in winner_list:
+        winner = player
+    player_list = create_player()
+    for person in player_list:
+        player = person
+    done = False
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+            pressed = pygame.key.get_pressed()
+            player.change_move_speed(pressed)
+        
+        player.update()
+        hole_list.update()
+        rock_list.update()
+        winner.update()
+        
+        #Check for collision with the winning square
+        won = winner.check_winner_collision(player_list, player)
+        if won:
+            pygame.mixer.music.load('Won!.wav')
+            pygame.mixer.music.play()
+            start_game = False
+            title_screen(win_message)
 
-hole_list = hard_level_hole()
-rock_list = hard_level_rock()
-done = False
-while not done:
-    # title_screen()
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = True
-        pressed = pygame.key.get_pressed()
-        player.change_move_speed(pressed)
-    
-    player.update()
-    hole_list.update()
-    rock_list.update()
-    winner_list.update()
-    
-    #Check for collision with the winning square
-    won = winner.check_winner_collision()
-    if won:
-        pygame.mixer.music.load('Won!.wav')
-        pygame.mixer.music.play()
+        #Check for collision with any of the holes.
+        for hole in hole_list:
+            deleted = hole.check_hole_collision(player_list, player)
+            if deleted:
+                player_list = create_player()
+                for person in player_list:
+                    player = person
 
-    #Check for collision with any of the holes.
-    for hole in hole_list:
-        deleted = hole.check_hole_collision()
-        if deleted:
-            player = Player(2, 2)
-            player_list.add(player)
+        #Check for collision with any of the rocks.
+        for rock in rock_list:
+            rock.check_rock_collision(player_list, player)
 
-    #Check for collision with any of the rocks.
-    for rock in rock_list:
-        rock.check_rock_collision()
+        #draw grid to the screen
+        board.draw_board()
 
-    #draw grid to the screen
-    board.draw_board()
+        #draw sprites to the screen
+        player_list.draw(screen)
+        winner_list.draw(screen)
+        hole_list.draw(screen)
+        rock_list.draw(screen)
+        #update screen
+        pygame.display.update()
+        
+        #setting clock
+        clock.tick(60)
 
-    #draw sprites to the screen
-    player_list.draw(screen)
-    winner_list.draw(screen)
-    hole_list.draw(screen)
-    rock_list.draw(screen)
-    #update screen
-    pygame.display.update()
-    
-    #setting clock
-    clock.tick(60)
-
+title_screen(start_message)
 pygame.quit()
