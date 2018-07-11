@@ -20,20 +20,6 @@ size = (width, height)
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Save the penguins!")
 
-# Play background music
-# def play_music():
-#     pygame.mixer.music.load('happy.mp3')
-#     pygame.mixer.music.set_volume(0.2)
-#     pygame.mixer.music.play(-1)
-
-# play_music()
-
-# def pause_music():
-#     pygame.mixer.music.pause()
-
-# def unpause_music():
-#     pygame.mixer.music.unpause()
-
 class Board(object):
 
     def __init__(self):
@@ -166,37 +152,74 @@ winner = Winner(5, 7)
 winner_list = pygame.sprite.Group()
 winner_list.add(winner)
 
-#Create holes
-hole1 = Hole(4, 7)
-hole2 = Hole(6, 7)
-hole_list = pygame.sprite.Group()
-hole_list.add(hole1)
-hole_list.add(hole2)
+def hole_creator(hole_dict):
+    hole_list = pygame.sprite.Group()
+    for key in hole_dict:
+        hole = Hole(hole_dict[key][0], hole_dict[key][1])
+        hole_list.add(hole)
+    return hole_list
 
-#Create rocks
-rock1 = Rock(2, 0)
-rock2 = Rock(1, 2)
-rock3 = Rock(2, 2)
-rock4 = Rock(6, 3)
-rock5 = Rock(1, 4)
-rock6 = Rock(3, 5)
-rock7 = Rock(2, 6)
-rock8 = Rock(7, 7)
-rock_list = pygame.sprite.Group()
-rock_list.add(rock1)
-rock_list.add(rock2)
-rock_list.add(rock3)
-rock_list.add(rock4)
-rock_list.add(rock5)
-rock_list.add(rock6)
-rock_list.add(rock7)
-rock_list.add(rock8)
+def rock_creator(rock_dict):
+    rock_list = pygame.sprite.Group()
+    for key in rock_dict:
+        rock = Rock(rock_dict[key][0], rock_dict[key][1])
+        rock_list.add(rock)
+    return rock_list
+
+def hard_level_hole():
+    #Create holes
+    hole_dict = {
+        'hole1': [4, 7],
+        'hole2': [6, 7]
+    }
+    hole_list = hole_creator(hole_dict)
+    return hole_list
+
+def hard_level_rock():
+    #Create rocks
+    rock_dict = {
+    'rock1': [2, 0],
+    'rock2': [1, 2],
+    'rock3': [2, 2],
+    'rock4': [6, 3],
+    'rock5': [1, 4],
+    'rock6': [3, 5],
+    'rock7': [2, 6],
+    'rock8': [7, 7]
+    }
+    rock_list = rock_creator(rock_dict)
+
+    return rock_list
+
 #Setup tempo (60 frames per second)
 clock = pygame.time.Clock()
 
+def title_screen():
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption("Save the penguins!")
+    background_image = pygame.image.load('frozen-lake.png').convert()
+
+    start_game = False
+
+    while not start_game:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                start_game = True
+                done = True
+        
+        screen.blit(background_image, [0, 0])
+        
+        pygame.display.update()
+        clock.tick(60)
+    pygame.quit()
+
 #Create the game loop.
+
+hole_list = hard_level_hole()
+rock_list = hard_level_rock()
 done = False
 while not done:
+    # title_screen()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
@@ -207,18 +230,21 @@ while not done:
     hole_list.update()
     rock_list.update()
     winner_list.update()
-
+    
+    #Check for collision with the winning square
     won = winner.check_winner_collision()
     if won:
         pygame.mixer.music.load('Won!.wav')
         pygame.mixer.music.play()
 
+    #Check for collision with any of the holes.
     for hole in hole_list:
         deleted = hole.check_hole_collision()
         if deleted:
             player = Player(2, 2)
             player_list.add(player)
 
+    #Check for collision with any of the rocks.
     for rock in rock_list:
         rock.check_rock_collision()
 
