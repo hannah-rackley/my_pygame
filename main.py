@@ -92,22 +92,31 @@ class Hole(pygame.sprite.Sprite):
         self.rect.y = (box_length + margin) * y + margin
 
     def check_hole_collision(self):
-       pygame.sprite.spritecollide(self, all_sprites_list, True)
+       hole_hit_list = pygame.sprite.spritecollide(self, all_sprites_list, True)
+       if len(hole_hit_list) > 0:
+           return True
 
-# class Rock(pygame.sprite.Sprite):
-#     def __init__(self, x, y):
-#         super(Rock, self).__init__()
+class Rock(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super(Rock, self).__init__()
     
-#         self.image = pygame.Surface([box_length, box_length])
-#         self.image.fill(BLACK)
-#         self.rect = self.image.get_rect()
+        self.image = pygame.Surface([box_length, box_length])
+        self.image.fill(ROCK)
+        self.rect = self.image.get_rect()
 
-#         self.rect.x = (box_length + margin) * x + margin
-#         self.rect.y = (box_length + margin) * y + margin
+        self.rect.x = (box_length + margin) * x + margin
+        self.rect.y = (box_length + margin) * y + margin
 
-#     def check_hole_collision(self):
-#        pygame.sprite.spritecollide(self, all_sprites_list, True)
-            
+    def check_rock_collision(self):
+        rock_hit_list = pygame.sprite.spritecollide(self, all_sprites_list, False)
+        if len(rock_hit_list) > 0:
+            if player.move_horizontal != 0:
+                player.rect.x -= player.move_horizontal
+            if player.move_vertical != 0:
+                player.rect.y -= player.move_vertical
+            player.move_horizontal = 0
+            player.move_vertical = 0
+            player.update()       
     
 #Setup board      
 board = Board()
@@ -121,6 +130,11 @@ all_sprites_list.add(player)
 hole = Hole(0, 2)
 hole_list = pygame.sprite.Group()
 hole_list.add(hole)
+
+#Create Rock
+rock = Rock(2, 5)
+rock_list = pygame.sprite.Group()
+rock_list.add(rock)
 
 #Setup tempo (60 frames per second)
 clock = pygame.time.Clock()
@@ -136,14 +150,21 @@ while not done:
     
     player.update()
     hole_list.update()
+    rock_list.update()
 
-    hole.check_hole_collision()
+    deleted = hole.check_hole_collision()
+    if deleted:
+        player = Player(2, 2)
+        all_sprites_list.add(player)
+
+    rock.check_rock_collision()
     #draw grid to the screen
     board.draw_board()
 
     #draw sprites to the screen
     all_sprites_list.draw(screen)
     hole_list.draw(screen)
+    rock_list.draw(screen)
     #update screen
     pygame.display.update()
     
