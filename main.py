@@ -41,6 +41,24 @@ class Board(object):
                 pygame.draw.rect(screen, color, [(margin + box_length) * column + margin, (margin + box_length) * row + margin, box_length, box_length])
         return grid
 
+class Level(object):
+    def __init__(self, winner_pos, hole_dict, rock_dict):
+        self.winner_pos = winner_pos
+        self.hole_dict = hole_dict
+        self.rock_dict = rock_dict
+    
+    def get_winner_list(self):
+        winner_list = create_winner(self.winner_pos)
+        return winner_list
+
+    def get_hole_list(self):
+        hole_list = hole_creator(self.hole_dict)
+        return hole_list
+    
+    def get_rock_list(self):
+        rock_list = rock_creator(self.rock_dict)
+        return rock_list
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Player, self).__init__()
@@ -198,27 +216,8 @@ def get_level_input(pressed):
         level_choice = 1
         return level_choice
 
-win_message = "You won! Press any key to start over!"
+win_message = "You won! Try another level!!"
 start_message = 'Save the penguin!'
-
-class Level(object):
-    def __init__(self, winner_pos, hole_dict, rock_dict):
-        self.winner_pos = winner_pos
-        self.hole_dict = hole_dict
-        self.rock_dict = rock_dict
-    
-    def get_winner_list(self):
-        winner_list = create_winner(self.winner_pos)
-        return winner_list
-
-    def get_hole_list(self):
-        hole_list = hole_creator(self.hole_dict)
-        return hole_list
-    
-    def get_rock_list(self):
-        rock_list = rock_creator(self.rock_dict)
-        return rock_list
-    
 
 #hard level
 hard_winner_pos = [5, 7]
@@ -270,6 +269,8 @@ def title_screen(message):
             if event.type == pygame.QUIT:
                 exit()
             elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    exit()
                 pressed = pygame.key.get_pressed()
                 if pressed[pygame.K_UP] or pressed[pygame.K_DOWN]:
                     start_game = True
@@ -280,7 +281,7 @@ def title_screen(message):
         screen.blit(background_image, [0, 0])
         display_medium_text(message)
         display_instruction_text("For level one, press up", 300)
-        display_instruction_text("For level two, press down", 100)
+        display_instruction_text("For level two, press down", 250)
 
         pygame.display.update()
         clock.tick(60)
@@ -312,6 +313,9 @@ def game_loop():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    exit()
             pressed = pygame.key.get_pressed()
             player.change_move_speed(pressed)
         
