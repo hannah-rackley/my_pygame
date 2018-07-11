@@ -138,9 +138,7 @@ class Winner(pygame.sprite.Sprite):
         winner_hit_list = pygame.sprite.spritecollide(self, player_list, True)
         if len(winner_hit_list) > 0:
             return True   
-
-
-    
+   
 #Setup board      
 board = Board()
 
@@ -152,8 +150,8 @@ def create_player():
     return player_list
 
 #Create winning square
-def create_winner():
-    winner = Winner(5, 7)
+def create_winner(winner_pos):
+    winner = Winner(winner_pos[0], winner_pos[1])
     winner_list = pygame.sprite.Group()
     winner_list.add(winner)
     return winner_list
@@ -173,19 +171,49 @@ def rock_creator(rock_dict):
     return rock_list
 
 def make_text(text, font):
-    textSurface = font.render(text, True, BLUE)
+    textSurface = font.render(text, True, BLACK)
     return textSurface, textSurface.get_rect()
 
 def display_medium_text(text):
     mediumText = pygame.font.Font('freesansbold.ttf', 30)
     TextSurf, TextRect = make_text(text, mediumText)
-    TextRect.center = ((width/2), (height/2))
+    TextRect.center = ((width/2), (height/3))
     screen.blit(TextSurf, TextRect)
 
     pygame.display.update()
 
-win_message = "You won! Press any key to play again!"
+def display_instruction_text(text, x):
+    mediumText = pygame.font.Font('freesansbold.ttf', 30)
+    TextSurf, TextRect = make_text(text, mediumText)
+    TextRect.center = ((width/2), (height - x))
+    screen.blit(TextSurf, TextRect)
+
+    pygame.display.update()
+
+win_message = "You won! Press any key to start over!"
 start_message = 'Save the penguin!'
+
+class Level(object):
+    def __init__(self, winner_pos, hole_dict, rock_dict):
+        self.winner_pos = winner_pos
+        self.hole_dict = hole_dict
+        self.rock_dict = rock_dict
+    
+    def get_winner_list(self):
+        winner_list = create_winner(self.winner_pos)
+        return winner_list
+
+    def get_hole_list(self):
+        hole_list = hole_creator(self.hole_dict)
+        return hole_list
+    
+    def get_rock_list(self):
+        rock_list = rock_creator(self.rock_dict)
+        return rock_list
+    
+
+#hard level
+hard_winner_pos = [5, 7]
 
 hard_hole_dict = {
     'hole1': [4, 7],
@@ -202,6 +230,22 @@ hard_rock_dict = {
     'rock7': [2, 6],
     'rock8': [7, 7]
 }
+hard_level = Level(hard_winner_pos, hard_hole_dict, hard_rock_dict)
+
+#easy level
+easy_winner_pos = [3, 4]
+
+easy_hole_dict = {
+    'hole1': [3, 0],
+    'hole2': [5, 1]
+}
+
+easy_rock_dict = {
+    'rock1': [7, 3],
+    'rock2': [0, 4],
+    'rock3': [1, 2],
+}
+easy_level = Level(easy_winner_pos, easy_hole_dict, easy_rock_dict)
 
 #Setup tempo (60 frames per second)
 clock = pygame.time.Clock()
@@ -222,6 +266,8 @@ def title_screen(message):
 
         screen.blit(background_image, [0, 0])
         display_medium_text(message)
+        display_instruction_text("For level one, press up", 300)
+        display_instruction_text("For level two, press down", 100)
 
         pygame.display.update()
         clock.tick(60)
@@ -230,16 +276,17 @@ def title_screen(message):
 
 #Create the game loop.
 def game_loop():
-    hole_list = hole_creator(hard_hole_dict)
-    rock_list = rock_creator(hard_rock_dict)
-    winner_list = create_winner()
+    # if level == 0:
+    hole_list = easy_level.get_hole_list()
+    rock_list = easy_level.get_rock_list()
+    winner_list = easy_level.get_winner_list()
     for player in winner_list:
         winner = player
     player_list = create_player()
     for person in player_list:
         player = person
-    done = False
-    while not done:
+    
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
