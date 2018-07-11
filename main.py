@@ -171,7 +171,7 @@ def rock_creator(rock_dict):
     return rock_list
 
 def make_text(text, font):
-    textSurface = font.render(text, True, BLACK)
+    textSurface = font.render(text, True, WINNER)
     return textSurface, textSurface.get_rect()
 
 def display_medium_text(text):
@@ -189,6 +189,14 @@ def display_instruction_text(text, x):
     screen.blit(TextSurf, TextRect)
 
     pygame.display.update()
+
+def get_level_input(pressed):
+    if pressed[pygame.K_UP]:
+        level_choice = 0
+        return level_choice
+    elif pressed[pygame.K_DOWN]:
+        level_choice = 1
+        return level_choice
 
 win_message = "You won! Press any key to start over!"
 start_message = 'Save the penguin!'
@@ -262,7 +270,12 @@ def title_screen(message):
             if event.type == pygame.QUIT:
                 exit()
             elif event.type == pygame.KEYDOWN:
-                start_game = True
+                pressed = pygame.key.get_pressed()
+                if pressed[pygame.K_UP] or pressed[pygame.K_DOWN]:
+                    start_game = True
+                else:
+                    pressed = pygame.key.get_pressed()
+                    
 
         screen.blit(background_image, [0, 0])
         display_medium_text(message)
@@ -276,12 +289,21 @@ def title_screen(message):
 
 #Create the game loop.
 def game_loop():
-    # if level == 0:
-    hole_list = easy_level.get_hole_list()
-    rock_list = easy_level.get_rock_list()
-    winner_list = easy_level.get_winner_list()
-    for player in winner_list:
-        winner = player
+    pressed = pygame.key.get_pressed()
+    level = get_level_input(pressed)
+    if level == 0:
+        hole_list = easy_level.get_hole_list()
+        rock_list = easy_level.get_rock_list()
+        winner_list = easy_level.get_winner_list()
+        for player in winner_list:
+            winner = player
+    elif level == 1:
+        hole_list = hard_level.get_hole_list()
+        rock_list = hard_level.get_rock_list()
+        winner_list = hard_level.get_winner_list()
+        for player in winner_list:
+            winner = player
+
     player_list = create_player()
     for person in player_list:
         player = person
