@@ -20,6 +20,20 @@ size = (width, height)
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Save the penguins!")
 
+# Play background music
+# def play_music():
+#     pygame.mixer.music.load('happy.mp3')
+#     pygame.mixer.music.set_volume(0.2)
+#     pygame.mixer.music.play(-1)
+
+# play_music()
+
+# def pause_music():
+#     pygame.mixer.music.pause()
+
+# def unpause_music():
+#     pygame.mixer.music.unpause()
+
 class Board(object):
 
     def __init__(self):
@@ -34,7 +48,7 @@ class Board(object):
 
     def draw_board(self):
         grid = self.create_grid_array()
-        screen.fill(BLACK)
+        screen.fill(WHITE)
         for row in range(box_number):
             for column in range(box_number):
                 color = BLUE
@@ -95,6 +109,8 @@ class Hole(pygame.sprite.Sprite):
     def check_hole_collision(self):
         hole_hit_list = pygame.sprite.spritecollide(self, player_list, True)
         if len(hole_hit_list) > 0:
+            pygame.mixer.music.load('acid_burn.mp3')
+            pygame.mixer.music.play()
             return True
 
 class Rock(pygame.sprite.Sprite):
@@ -111,6 +127,8 @@ class Rock(pygame.sprite.Sprite):
     def check_rock_collision(self):
         rock_hit_list = pygame.sprite.spritecollide(self, player_list, False)
         if len(rock_hit_list) > 0:
+            pygame.mixer.music.load('Fire_4.mp3')
+            pygame.mixer.music.play()
             if player.move_horizontal != 0:
                 player.rect.x -= player.move_horizontal
             if player.move_vertical != 0:
@@ -192,7 +210,8 @@ while not done:
 
     won = winner.check_winner_collision()
     if won:
-        done = True
+        pygame.mixer.music.load('Won!.wav')
+        pygame.mixer.music.play()
 
     for hole in hole_list:
         deleted = hole.check_hole_collision()
