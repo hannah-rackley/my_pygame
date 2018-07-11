@@ -6,11 +6,12 @@ BLUE = (159, 232, 252)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 ROCK = (104, 115, 132)
+WINNER = (244, 26, 88)
 
 #Setup our screen size.
 box_length = 85
-margin = 2
-box_number = 6
+margin = 5
+box_number = 8
 
 width = box_number * (box_length + margin)
 height = box_number * (box_length + margin)
@@ -92,9 +93,9 @@ class Hole(pygame.sprite.Sprite):
         self.rect.y = (box_length + margin) * y + margin
 
     def check_hole_collision(self):
-       hole_hit_list = pygame.sprite.spritecollide(self, all_sprites_list, True)
-       if len(hole_hit_list) > 0:
-           return True
+        hole_hit_list = pygame.sprite.spritecollide(self, player_list, True)
+        if len(hole_hit_list) > 0:
+            return True
 
 class Rock(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -108,7 +109,7 @@ class Rock(pygame.sprite.Sprite):
         self.rect.y = (box_length + margin) * y + margin
 
     def check_rock_collision(self):
-        rock_hit_list = pygame.sprite.spritecollide(self, all_sprites_list, False)
+        rock_hit_list = pygame.sprite.spritecollide(self, player_list, False)
         if len(rock_hit_list) > 0:
             if player.move_horizontal != 0:
                 player.rect.x -= player.move_horizontal
@@ -116,26 +117,62 @@ class Rock(pygame.sprite.Sprite):
                 player.rect.y -= player.move_vertical
             player.move_horizontal = 0
             player.move_vertical = 0
-            player.update()       
+            player.update()  
+
+class Winner(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super(Winner, self).__init__()
+    
+        self.image = pygame.Surface([box_length, box_length])
+        self.image.fill(WINNER)
+        self.rect = self.image.get_rect()
+
+        self.rect.x = (box_length + margin) * x + margin
+        self.rect.y = (box_length + margin) * y + margin
+
+    def check_winner_collision(self):
+        winner_hit_list = pygame.sprite.spritecollide(self, player_list, True)
+        if len(winner_hit_list) > 0:
+            return True     
     
 #Setup board      
 board = Board()
 
 #Create Player
 player = Player(2, 2)
-all_sprites_list = pygame.sprite.Group()
-all_sprites_list.add(player)
+player_list = pygame.sprite.Group()
+player_list.add(player)
 
-#Create hole
-hole = Hole(0, 2)
+#Create winning square
+winner = Winner(5, 7)
+winner_list = pygame.sprite.Group()
+winner_list.add(winner)
+
+#Create holes
+hole1 = Hole(4, 7)
+hole2 = Hole(6, 7)
 hole_list = pygame.sprite.Group()
-hole_list.add(hole)
+hole_list.add(hole1)
+hole_list.add(hole2)
 
-#Create Rock
-rock = Rock(2, 5)
+#Create rocks
+rock1 = Rock(2, 0)
+rock2 = Rock(1, 2)
+rock3 = Rock(2, 2)
+rock4 = Rock(6, 3)
+rock5 = Rock(1, 4)
+rock6 = Rock(3, 5)
+rock7 = Rock(2, 6)
+rock8 = Rock(7, 7)
 rock_list = pygame.sprite.Group()
-rock_list.add(rock)
-
+rock_list.add(rock1)
+rock_list.add(rock2)
+rock_list.add(rock3)
+rock_list.add(rock4)
+rock_list.add(rock5)
+rock_list.add(rock6)
+rock_list.add(rock7)
+rock_list.add(rock8)
 #Setup tempo (60 frames per second)
 clock = pygame.time.Clock()
 
@@ -151,18 +188,27 @@ while not done:
     player.update()
     hole_list.update()
     rock_list.update()
+    winner_list.update()
 
-    deleted = hole.check_hole_collision()
-    if deleted:
-        player = Player(2, 2)
-        all_sprites_list.add(player)
+    won = winner.check_winner_collision()
+    if won:
+        done = True
 
-    rock.check_rock_collision()
+    for hole in hole_list:
+        deleted = hole.check_hole_collision()
+        if deleted:
+            player = Player(2, 2)
+            player_list.add(player)
+
+    for rock in rock_list:
+        rock.check_rock_collision()
+
     #draw grid to the screen
     board.draw_board()
 
     #draw sprites to the screen
-    all_sprites_list.draw(screen)
+    player_list.draw(screen)
+    winner_list.draw(screen)
     hole_list.draw(screen)
     rock_list.draw(screen)
     #update screen
