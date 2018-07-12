@@ -21,6 +21,16 @@ size = (width, height)
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Save the penguins!")
 
+#Setup tempo (60 frames per second)
+clock = pygame.time.Clock()
+
+#Play background music
+def play_background_music():
+    pygame.mixer.music.load('happy.mp3')
+    pygame.mixer.music.play()
+    if pygame.mixer.get_busy():
+        pygame.time.delay(100)
+
 class Board(object):
     def __init__(self):
         self.grid = []
@@ -33,6 +43,7 @@ class Board(object):
         return self.grid
 
     def draw_board(self):
+        #Should this do this? or should it be done separately and then draw board is called after? 
         grid = self.create_grid_array()
         screen.fill(WHITE)
         for row in range(box_number):
@@ -48,6 +59,8 @@ class Level(object):
         self.rock_dict = rock_dict
     
     def get_winner_list(self):
+        #interesting that this uses an external global function. Wonder if there is a better way of managing
+        #those external global variables that need to be set with these functions in these classes??
         winner_list = create_winner(self.winner_pos)
         return winner_list
 
@@ -99,6 +112,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += self.move_horizontal
         self.rect.y += self.move_vertical
 
+#This class shares some similar variables as Player. Could these extend a parent class or interface? Does Python have interfaces?
 class Hole(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Hole, self).__init__()
@@ -111,6 +125,7 @@ class Hole(pygame.sprite.Sprite):
         self.rect.y = (box_length + margin) * y + margin
 
     def check_hole_collision(self, player_list, player):
+        #I like how it does not access the global player and takes it in as parameters
         hole_hit_list = pygame.sprite.spritecollide(self, player_list, True)
         if len(hole_hit_list) > 0:
             pygame.mixer.music.load('acid_burn.mp3')
@@ -125,14 +140,15 @@ class Rock(pygame.sprite.Sprite):
         self.image.fill(ROCK)
         self.rect = self.image.get_rect()
 
+        #Similar to how calculations are done for Hole...seems like a good opportunity for a parent class??
         self.rect.x = (box_length + margin) * x + margin
         self.rect.y = (box_length + margin) * y + margin
 
     def check_rock_collision(self, player_list, player):
         rock_hit_list = pygame.sprite.spritecollide(self, player_list, False)
         if len(rock_hit_list) > 0:
-            pygame.mixer.music.load('Fire_4.mp3')
-            pygame.mixer.music.play()
+            # pygame.mixer.music.load('Fire_4.mp3')
+            # pygame.mixer.music.play()
             if player.move_horizontal != 0:
                 player.rect.x -= player.move_horizontal
             if player.move_vertical != 0:
@@ -173,14 +189,16 @@ def create_winner(winner_pos):
     winner_list = pygame.sprite.Group()
     winner_list.add(winner)
     return winner_list
-
+#create holes
 def hole_creator(hole_dict):
     hole_list = pygame.sprite.Group()
+    #cool cool cool. Works how I hoped it would
     for key in hole_dict:
         hole = Hole(hole_dict[key][0], hole_dict[key][1])
         hole_list.add(hole)
     return hole_list
 
+#create rocks
 def rock_creator(rock_dict):
     rock_list = pygame.sprite.Group()
     for key in rock_dict:
@@ -188,10 +206,11 @@ def rock_creator(rock_dict):
         rock_list.add(rock)
     return rock_list
 
+#make text
 def make_text(text, font):
     textSurface = font.render(text, True, WINNER)
     return textSurface, textSurface.get_rect()
-
+#display text
 def display_medium_text(text):
     mediumText = pygame.font.Font('freesansbold.ttf', 30)
     TextSurf, TextRect = make_text(text, mediumText)
@@ -200,6 +219,11 @@ def display_medium_text(text):
 
     pygame.display.update()
 
+#Messages to be passed into tect creation functions
+win_message = "You won! Try another level!!"
+start_message = 'Save the penguin!'
+
+#display text smaller
 def display_instruction_text(text, x):
     mediumText = pygame.font.Font('freesansbold.ttf', 30)
     TextSurf, TextRect = make_text(text, mediumText)
@@ -207,7 +231,7 @@ def display_instruction_text(text, x):
     screen.blit(TextSurf, TextRect)
 
     pygame.display.update()
-
+#Check for pressed key and go to appropriate level
 def get_level_input(pressed):
     if pressed[pygame.K_UP]:
         level_choice = 0
@@ -215,9 +239,6 @@ def get_level_input(pressed):
     elif pressed[pygame.K_DOWN]:
         level_choice = 1
         return level_choice
-
-win_message = "You won! Try another level!!"
-start_message = 'Save the penguin!'
 
 #hard level
 hard_winner_pos = [5, 7]
@@ -254,14 +275,10 @@ easy_rock_dict = {
 }
 easy_level = Level(easy_winner_pos, easy_hole_dict, easy_rock_dict)
 
-#Setup tempo (60 frames per second)
-clock = pygame.time.Clock()
-
 def title_screen(message):
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption("Save the penguin!")
     background_image = pygame.image.load('frozen-lake.png').convert()
-
     start_game = False
 
     while not start_game:
@@ -306,6 +323,7 @@ def game_loop():
             winner = player
 
     player_list = create_player()
+    #does this loop through an array but only set person to one of the people in the player_list?
     for person in player_list:
         player = person
     
