@@ -1,6 +1,7 @@
 import pygame
 import time
 pygame.init()
+pygame.mixer.init()
 
 #Game colors
 BLUE = (159, 232, 252)
@@ -35,7 +36,7 @@ def play_background_music():
 class Board(object):
     def __init__(self):
         self.grid = []
-        
+
     def draw_board(self):
         screen.fill(WHITE)
         for row in range(box_number):
@@ -124,8 +125,8 @@ class Hole(pygame.sprite.Sprite):
         #I like how it does not access the global player and takes it in as parameters
         hole_hit_list = pygame.sprite.spritecollide(self, player_list, True)
         if len(hole_hit_list) > 0:
-            pygame.mixer.music.load('acid_burn.mp3')
-            pygame.mixer.music.play()
+            sound = pygame.mixer.Sound('./splash.wav')
+            sound.play()
             return True
 
 class Rock(pygame.sprite.Sprite):
@@ -276,7 +277,7 @@ def title_screen(message):
     pygame.display.set_caption("Save the penguin!")
     background_image = pygame.image.load('frozen-lake.png').convert()
     start_game = False
-
+    play_background_music()
     while not start_game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
