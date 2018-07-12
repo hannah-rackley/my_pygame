@@ -28,7 +28,7 @@ clock = pygame.time.Clock()
 #Play background music
 def play_background_music():
     pygame.mixer.music.load('happy.mp3')
-    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.set_volume(0.2)
     pygame.mixer.music.play()
     if pygame.mixer.get_busy():
         pygame.time.delay(100)
