@@ -217,13 +217,13 @@ def display_medium_text(text):
 
     pygame.display.update()
 
-#Messages to be passed into tect creation functions
+#Messages to be passed into text creation functions
 win_message = "You won! Try another level!!"
-start_message = 'Penguin Puzzler'
+start_message = 'Pengiun Puzzler'
 
 #display text smaller
 def display_instruction_text(text, x):
-    mediumText = pygame.font.Font('freesansbold.ttf', 30)
+    mediumText = pygame.font.Font('freesansbold.ttf', 22)
     TextSurf, TextRect = make_text(text, mediumText)
     TextRect.center = ((width/2), (height - x))
     screen.blit(TextSurf, TextRect)
@@ -234,44 +234,40 @@ def get_level_input(pressed):
     if pressed[pygame.K_UP]:
         level_choice = 0
         return level_choice
-    elif pressed[pygame.K_DOWN]:
+    elif pressed[pygame.K_RIGHT]:
         level_choice = 1
+        return level_choice
+    elif pressed[pygame.K_DOWN]:
+        level_choice = 2
         return level_choice
 
 #easy level
-easy_winner_pos = [3, 4]
+easy_winner_pos = [2, 6]
 
 easy_hole_dict = {
+    'hole2': [5, 3]
+}
+
+easy_rock_dict = {
+    'rock1': [0, 4],
+    'rock2': [7, 5],
+}
+easy_level = Level(easy_winner_pos, easy_hole_dict, easy_rock_dict)
+
+#medium level
+medium_winner_pos = [3, 4]
+
+medium_hole_dict = {
     'hole1': [3, 0],
     'hole2': [5, 1]
 }
 
-easy_rock_dict = {
+medium_rock_dict = {
     'rock1': [7, 3],
     'rock2': [0, 4],
     'rock3': [1, 2],
 }
-easy_level = Level(easy_winner_pos, easy_hole_dict, easy_rock_dict)
-
-#hard level
-hard_winner_pos = [5, 7]
-
-hard_hole_dict = {
-    'hole1': [4, 7],
-    'hole2': [6, 7]
-}
-
-hard_rock_dict = {
-    'rock1': [2, 0],
-    'rock2': [1, 2],
-    'rock3': [2, 2],
-    'rock4': [6, 3],
-    'rock5': [1, 4],
-    'rock6': [3, 5],
-    'rock7': [2, 6],
-    'rock8': [7, 7]
-}
-hard_level = Level(hard_winner_pos, hard_hole_dict, hard_rock_dict)
+medium_level = Level(medium_winner_pos, medium_hole_dict, medium_rock_dict)
 
 #hard level
 hard_winner_pos = [5, 7]
@@ -307,7 +303,7 @@ def title_screen(message):
                 if event.key == pygame.K_ESCAPE:
                     exit()
                 pressed = pygame.key.get_pressed()
-                if pressed[pygame.K_UP] or pressed[pygame.K_DOWN]:
+                if pressed[pygame.K_UP] or pressed[pygame.K_DOWN] or pressed[pygame.K_RIGHT]:
                     start_game = True
                 else:
                     pressed = pygame.key.get_pressed()
@@ -315,8 +311,10 @@ def title_screen(message):
 
         screen.blit(background_image, [0, 0])
         display_medium_text(message)
+        display_instruction_text("Avoid the black squares to get to the pink one", 380)
         display_instruction_text("For level one, press up", 300)
-        display_instruction_text("For level two, press down", 250)
+        display_instruction_text("For level two, press right", 250)
+        display_instruction_text("For level three, press down", 200)
 
         pygame.display.update()
         clock.tick(60)
@@ -334,6 +332,12 @@ def game_loop():
         for player in winner_list:
             winner = player
     elif level == 1:
+        hole_list = medium_level.get_hole_list()
+        rock_list = medium_level.get_rock_list()
+        winner_list = medium_level.get_winner_list()
+        for player in winner_list:
+            winner = player
+    elif level == 2:
         hole_list = hard_level.get_hole_list()
         rock_list = hard_level.get_rock_list()
         winner_list = hard_level.get_winner_list()
