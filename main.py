@@ -31,26 +31,22 @@ def play_background_music():
     if pygame.mixer.get_busy():
         pygame.time.delay(100)
 
+#Create board
 class Board(object):
     def __init__(self):
         self.grid = []
-    
-    def create_grid_array(self):
+        
+    def draw_board(self):
+        screen.fill(WHITE)
         for row in range(box_number):
             self.grid.append([])
             for column in range(box_number):
                 self.grid[row].append(0)
-        return self.grid
-
-    def draw_board(self):
-        #Should this do this? or should it be done separately and then draw board is called after? 
-        grid = self.create_grid_array()
-        screen.fill(WHITE)
         for row in range(box_number):
             for column in range(box_number):
                 color = BLUE
                 pygame.draw.rect(screen, color, [(margin + box_length) * column + margin, (margin + box_length) * row + margin, box_length, box_length])
-        return grid
+        return self.grid
 
 class Level(object):
     def __init__(self, winner_pos, hole_dict, rock_dict):
@@ -323,7 +319,6 @@ def game_loop():
             winner = player
 
     player_list = create_player()
-    #does this loop through an array but only set person to one of the people in the player_list?
     for person in player_list:
         player = person
     
