@@ -20,7 +20,7 @@ height = box_number * (box_length + margin)
 
 size = (width, height)
 screen = pygame.display.set_mode(size)
-pygame.display.set_caption("Save the penguins!")
+pygame.display.set_caption("Penguin Puzzler")
 
 #Setup tempo (60 frames per second)
 clock = pygame.time.Clock()
@@ -28,6 +28,7 @@ clock = pygame.time.Clock()
 #Play background music
 def play_background_music():
     pygame.mixer.music.load('happy.mp3')
+    pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play()
     if pygame.mixer.get_busy():
         pygame.time.delay(100)
@@ -218,7 +219,7 @@ def display_medium_text(text):
 
 #Messages to be passed into tect creation functions
 win_message = "You won! Try another level!!"
-start_message = 'Save the penguin!'
+start_message = 'Penguin Puzzler'
 
 #display text smaller
 def display_instruction_text(text, x):
@@ -236,6 +237,21 @@ def get_level_input(pressed):
     elif pressed[pygame.K_DOWN]:
         level_choice = 1
         return level_choice
+
+#easy level
+easy_winner_pos = [3, 4]
+
+easy_hole_dict = {
+    'hole1': [3, 0],
+    'hole2': [5, 1]
+}
+
+easy_rock_dict = {
+    'rock1': [7, 3],
+    'rock2': [0, 4],
+    'rock3': [1, 2],
+}
+easy_level = Level(easy_winner_pos, easy_hole_dict, easy_rock_dict)
 
 #hard level
 hard_winner_pos = [5, 7]
@@ -257,24 +273,29 @@ hard_rock_dict = {
 }
 hard_level = Level(hard_winner_pos, hard_hole_dict, hard_rock_dict)
 
-#easy level
-easy_winner_pos = [3, 4]
+#hard level
+hard_winner_pos = [5, 7]
 
-easy_hole_dict = {
-    'hole1': [3, 0],
-    'hole2': [5, 1]
+hard_hole_dict = {
+    'hole1': [4, 7],
+    'hole2': [6, 7]
 }
 
-easy_rock_dict = {
-    'rock1': [7, 3],
-    'rock2': [0, 4],
-    'rock3': [1, 2],
+hard_rock_dict = {
+    'rock1': [2, 0],
+    'rock2': [1, 2],
+    'rock3': [2, 2],
+    'rock4': [6, 3],
+    'rock5': [1, 4],
+    'rock6': [3, 5],
+    'rock7': [2, 6],
+    'rock8': [7, 7]
 }
-easy_level = Level(easy_winner_pos, easy_hole_dict, easy_rock_dict)
+hard_level = Level(hard_winner_pos, hard_hole_dict, hard_rock_dict)
 
 def title_screen(message):
     screen = pygame.display.set_mode(size)
-    pygame.display.set_caption("Save the penguin!")
+    pygame.display.set_caption("Penguin Puzzler")
     background_image = pygame.image.load('frozen-lake.png').convert()
     start_game = False
     play_background_music()
@@ -341,8 +362,8 @@ def game_loop():
         #Check for collision with the winning square
         won = winner.check_winner_collision(player_list, player)
         if won:
-            pygame.mixer.music.load('Won!.wav')
-            pygame.mixer.music.play()
+            won_sound = pygame.mixer.Sound('Won!.wav')
+            won_sound.play()
             start_game = False
             title_screen(win_message)
 
