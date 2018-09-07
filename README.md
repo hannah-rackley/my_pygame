@@ -5,13 +5,10 @@ Penguin Puzzler is a classic puzzle game. The goal is to slide along the ice and
 
 There are three levels total:
 
-Level 1:
 ![Level 1 of Penguin Puzzler](/Level1.png "Level 1")
 
-Level 2:
 ![Level 2 of Penguin Puzzler](/Level2.png "Level 2")
 
-Level 3:
 ![Level 3 of Penguin Puzzler](/Level3.png "Level 3")
 
 # Getting Started
@@ -21,7 +18,7 @@ If you would like to give this game a go, you will need to have Python and Pygam
 [Pygame Install](https://www.pygame.org/wiki/GettingStarted)
 [Anaconda Install](https://www.anaconda.com/download/#macos)
 
-Once you have the repository pulled down, you should be able to go to the Game File in your terminal and run ```BASH python main.py``` to start the game.
+Once you have the repository pulled down, you should be able to go to the Game File in your terminal and run ```python main.py``` to start the game.
 
 Credits
 
