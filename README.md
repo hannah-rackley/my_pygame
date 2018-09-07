@@ -11,16 +11,17 @@ There are three levels total:
 
 ![Level 3 of Penguin Puzzler](/Level3.png "Level 3")
 
-# Getting Started
+## Getting Started
 -----------------
 If you would like to give this game a go, you will need to have Python and Pygame installed. I used the Anaconda Python environment (Python 2.7 version). Instructions for installing both are below:
 
-[Pygame Install](https://www.pygame.org/wiki/GettingStarted)
-[Anaconda Install](https://www.anaconda.com/download/#macos)
+* [Pygame Install](https://www.pygame.org/wiki/GettingStarted)
+* [Anaconda Install](https://www.anaconda.com/download/#macos)
 
 Once you have the repository pulled down, you should be able to go to the Game File in your terminal and run ```python main.py``` to start the game.
 
-Credits
+## Credits
+----------
 
-[Sprite art](https://opengameart.org/content/cute-penguins)
-[Title screen background image](https://opengameart.org/content/frozen-lake)
+* [Sprite art](https://opengameart.org/content/cute-penguins)
+* [Title screen background image](https://opengameart.org/content/frozen-lake)
