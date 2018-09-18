@@ -57,8 +57,6 @@ class Level(object):
         self.rock_dict = rock_dict
     
     def get_winner_list(self):
-        #interesting that this uses an external global function. Wonder if there is a better way of managing
-        #those external global variables that need to be set with these functions in these classes??
         winner_list = create_winner(self.winner_pos)
         return winner_list
 
@@ -138,7 +136,6 @@ class Rock(pygame.sprite.Sprite):
         self.image.fill(ROCK)
         self.rect = self.image.get_rect()
 
-        #Similar to how calculations are done for Hole...seems like a good opportunity for a parent class??
         self.rect.x = (box_length + margin) * x + margin
         self.rect.y = (box_length + margin) * y + margin
 
@@ -190,7 +187,7 @@ def create_winner(winner_pos):
 #create holes
 def hole_creator(hole_dict):
     hole_list = pygame.sprite.Group()
-    #cool cool cool. Works how I hoped it would
+    
     for key in hole_dict:
         hole = Hole(hole_dict[key][0], hole_dict[key][1])
         hole_list.add(hole)
