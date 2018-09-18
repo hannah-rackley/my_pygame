@@ -108,7 +108,6 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += self.move_horizontal
         self.rect.y += self.move_vertical
 
-#This class shares some similar variables as Player. Could these extend a parent class or interface? Does Python have interfaces?
 class Hole(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Hole, self).__init__()
@@ -121,7 +120,6 @@ class Hole(pygame.sprite.Sprite):
         self.rect.y = (box_length + margin) * y + margin
 
     def check_hole_collision(self, player_list, player):
-        #I like how it does not access the global player and takes it in as parameters
         hole_hit_list = pygame.sprite.spritecollide(self, player_list, True)
         if len(hole_hit_list) > 0:
             sound = pygame.mixer.Sound('./splash.wav')
@@ -187,7 +185,7 @@ def create_winner(winner_pos):
 #create holes
 def hole_creator(hole_dict):
     hole_list = pygame.sprite.Group()
-    
+
     for key in hole_dict:
         hole = Hole(hole_dict[key][0], hole_dict[key][1])
         hole_list.add(hole)
